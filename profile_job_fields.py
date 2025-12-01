@@ -45,7 +45,7 @@ profile = {
     
 
 }
-service = Service(executable_path="C:\Users\Vanessa\Desktop\chromedriver-win64")  # <-- UPDATE
+service = Service(executable_path="C:\Users\YOURNAME\YOURDESKTOP\chromedriver-win64")  # <-- UPDATE
 driver = webdriver.Chrome(service=service)
 
 driver.get("https://example.com/job-application") # <--REPLACE
