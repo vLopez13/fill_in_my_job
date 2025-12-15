@@ -1,0 +1,110 @@
+/* static/style.css */
+
+/* --- The Sunset Background --- */
+body {
+    /* A pretty pastel pink-to-orange sunset gradient */
+    background: linear-gradient(135deg, #FF9A9E 0%, #FECFEF 50%, #FFF0F5 100%);
+    min-height: 100vh;
+    font-family: 'Poppins', sans-serif;
+    color: #555;
+}
+
+/* --- Headings --- */
+h1 {
+    font-family: 'Playfair Display', serif;
+    font-weight: 700;
+    font-style: italic;
+    color: #D63384; /* Hot Pink */
+    text-shadow: 2px 2px 0px #fff;
+}
+
+/* --- The Glass Card --- */
+.glass-card {
+    background: rgba(255, 255, 255, 0.85); /* Semi-transparent white */
+    backdrop-filter: blur(10px); /* Frosted glass effect */
+    border-radius: 25px;
+    border: 2px solid #fff;
+    box-shadow: 0 8px 32px rgba(214, 51, 132, 0.15); /* Soft pink shadow */
+    padding: 30px;
+}
+
+/* --- The Table Styling --- */
+.table {
+    border-collapse: separate; 
+    border-spacing: 0 10px; /* Space between rows */
+}
+
+.table thead th {
+    border: none;
+    background-color: transparent;
+    color: #D63384;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-size: 0.85rem;
+}
+
+.table tbody tr {
+    background-color: #fff;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.02);
+    transition: transform 0.2s;
+}
+
+.table tbody tr:hover {
+    transform: scale(1.01); /* Slight pop up on hover */
+}
+
+.table td {
+    border: none;
+    vertical-align: middle;
+    padding: 15px;
+}
+
+/* Rounded corners for the first and last cells */
+.table td:first-child { border-top-left-radius: 15px; border-bottom-left-radius: 15px; }
+.table td:last-child { border-top-right-radius: 15px; border-bottom-right-radius: 15px; }
+
+/* --- Status Badges (Pastel Colors) --- */
+.status-badge {
+    padding: 5px 12px;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
+/* Status: Applied (Baby Blue/Periwinkle) */
+.status-Applied { background-color: #E0F7FA; color: #00BCD4; }
+
+/* Status: Interviewing (Pastel Green) */
+.status-Interviewing { background-color: #E8F5E9; color: #4CAF50; }
+
+/* Status: Rejected (Pastel Red) */
+.status-Rejected { background-color: #FFEBEE; color: #EF5350; }
+
+/* Status: Ghosted (Pastel Grey/Purple) */
+.status-Ghosted { background-color: #F3E5F5; color: #AB47BC; }
+
+/* --- The "View" Button --- */
+.btn-chic {
+    background-color: #FFB6C1; /* Light Pink */
+    border: 2px solid #FFB6C1;
+    color: white;
+    border-radius: 20px;
+    padding: 5px 20px;
+    font-weight: 600;
+    transition: all 0.3s;
+}
+
+.btn-chic:hover {
+    background-color: #D63384; /* Hot Pink on hover */
+    border-color: #D63384;
+    color: white;
+    box-shadow: 0 4px 10px rgba(214, 51, 132, 0.3);
+}
+
+/* Badge for job count */
+.pink-badge {
+    background-color: #D63384 !important;
+    border-radius: 50%;
+    padding: 10px 14px;
+}

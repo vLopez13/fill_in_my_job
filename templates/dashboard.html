@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Job Applications</title>
+    
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@1,700&family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+<div class="container main-container">
+    
+    <div class="header d-flex justify-content-between align-items-center mb-4">
+        <div class="d-flex align-items-center">
+            <h1 class="header-title">My Job Applications</h1>
+            <span class="badge pink-badge fs-6 shadow-sm">{{ jobs|length }}</span>
+        </div>
+    </div>
+
+    <div class="glass-card">
+        {% if jobs %}
+        <table class="table table-hover align-middle mb-0">
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Company</th>
+                    <th>Role</th>
+                    <th>Status</th>
+                    <th class="text-end">Link</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for job in jobs %}
+                <tr>
+                    <td class="text-muted" style="font-size: 0.9rem;">{{ job.date }}</td>
+                    <td class="fw-bold" style="color: #444;">{{ job.company }}</td>
+                    <td style="color: #D63384; font-weight: 500;">{{ job.title }}</td>
+                    <td>
+                        <span class="status-badge status-{{ job.status }}">
+                            {{ job.status }}
+                        </span>
+                    </td>
+                    <td class="text-end">
+                        <a href="{{ job.url }}" target="_blank" class="btn btn-chic btn-sm">Visit</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <div class="text-center py-5">
+            <h3 style="color: #FFB6C1; font-family: 'Playfair Display', serif;">Waiting for the first application ✨</h3>
+            <p class="text-muted">Upload a resume to get started.</p>
+        </div>
+        {% endif %}
+    </div>
+
+</div>
+
+</body>
+</html>

@@ -1,0 +1,17 @@
+# Security: Ignore environment variables and secrets
+.env
+.env.local
+
+# Privacy: Ignore personal resume files
+resumes/
+
+# Python: Ignore virtual environment and cache
+venv/
+__pycache__/
+*.pyc
+
+# Flask: Ignore instance folder (database sometimes lives here)
+instance/
+
+# OS: Ignore system files
+.DS_Store
