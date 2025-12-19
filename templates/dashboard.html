@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Job Applications</title>
+    <title>Vanessa's Job Application Tracker</title>
     
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@1,700&family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
@@ -12,40 +12,61 @@
 </head>
 <body>
 
-<div class="container main-container">
+<div class="container main-container py-5">
     
-    <div class="header d-flex justify-content-between align-items-center mb-4">
+    <div class="d-flex justify-content-between align-items-center mb-4 px-2">
         <div class="d-flex align-items-center">
-            <h1 class="header-title">My Job Applications</h1>
-            <span class="badge pink-badge fs-6 shadow-sm">{{ jobs|length }}</span>
+            <h1 class="header-title mb-0">My Job Applications</h1>
+            <span class="badge pink-badge shadow-sm">{{ jobs|length }}</span>
         </div>
+        <button onclick="scanFolder()" class="btn btn-dark rounded-pill px-4 shadow-sm">
+            <i class="fas fa-sync-alt me-2"></i> Scan Resumes
+        </button>
     </div>
 
     <div class="glass-card">
         {% if jobs %}
-        <table class="table table-hover align-middle mb-0">
+        <table class="table align-middle mb-0">
             <thead>
                 <tr>
-                    <th>Date</th>
-                    <th>Company</th>
-                    <th>Role</th>
-                    <th>Status</th>
-                    <th class="text-end">Link</th>
+                    <th width="15%">Date</th>
+                    <th width="20%">Company</th>
+                    <th width="25%">Role</th>
+                    <th width="20%" class="text-center">Status</th>
+                    <th width="10%" class="text-end">Action</th>
                 </tr>
             </thead>
             <tbody>
                 {% for job in jobs %}
-                <tr>
-                    <td class="text-muted" style="font-size: 0.9rem;">{{ job.date }}</td>
-                    <td class="fw-bold" style="color: #444;">{{ job.company }}</td>
-                    <td style="color: #D63384; font-weight: 500;">{{ job.title }}</td>
+                <tr id="row-{{ job.id }}">
+                    <td class="text-muted" style="font-size: 0.9rem;">
+                        {{ job.date }}
+                    </td>
                     <td>
-                        <span class="status-badge status-{{ job.status }}">
-                            {{ job.status }}
-                        </span>
+                        <div class="company-name">{{ job.company }}</div>
+                    </td>
+                    <td>
+                        <div class="role-name">{{ job.title }}</div>
+                        <small class="text-muted" style="font-size: 0.75rem">
+                            Using: {{ job.resume_used if job.resume_used else "No Resume" }}
+                        </small>
+                    </td>
+                    <td class="text-center">
+                        <select 
+                            class="status-select status-{{ job.status }}" 
+                            onchange="updateStatus('{{ job.id }}', this)"
+                        >
+                            <option value="Visited" {% if job.status == 'Visited' %}selected{% endif %}>Visited</option>
+                            <option value="Applied" {% if job.status == 'Applied' %}selected{% endif %}>Applied</option>
+                            <option value="Interviewing" {% if job.status == 'Interviewing' %}selected{% endif %}>Interviewing</option>
+                            <option value="Offer" {% if job.status == 'Offer' %}selected{% endif %}>Offer ✨</option>
+                            <option value="Rejected" {% if job.status == 'Rejected' %}selected{% endif %}>Rejected</option>
+                        </select>
                     </td>
                     <td class="text-end">
-                        <a href="{{ job.url }}" target="_blank" class="btn btn-chic btn-sm">Visit</a>
+                        <a href="{{ job.url }}" target="_blank" class="btn btn-visit">
+                            Visit <i class="fas fa-external-link-alt ms-1"></i>
+                        </a>
                     </td>
                 </tr>
                 {% endfor %}
@@ -53,13 +74,53 @@
         </table>
         {% else %}
         <div class="text-center py-5">
-            <h3 style="color: #FFB6C1; font-family: 'Playfair Display', serif;">Waiting for the first application ✨</h3>
-            <p class="text-muted">Upload a resume to get started.</p>
+            <h3 style="color: #FFB6C1;">Waiting for the first application ✨</h3>
+            <p class="text-muted">Use the Chrome Extension to add jobs here.</p>
         </div>
         {% endif %}
     </div>
 
 </div>
+
+<script>
+    async function updateStatus(jobId, selectElement) {
+        const newStatus = selectElement.value;
+        selectElement.className = 'status-select'; 
+        selectElement.classList.add('status-' + newStatus.replace(' ✨', '')); 
+
+        try {
+            const response = await fetch(`/update-status/${jobId}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ status: newStatus })
+            });
+
+            if (!response.ok) {
+                alert("Failed to update status in database");
+            } else {
+                console.log(`Job ${jobId} updated to ${newStatus}`);
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            alert("Connection error");
+        }
+    }
+
+    async function scanFolder() {
+        if(confirm("Scan 'resumes' folder for new PDFs?")) {
+            try {
+                const res = await fetch('/scan-resumes', { method: 'POST' });
+                const data = await res.json();
+                alert(data.message);
+                location.reload();
+            } catch(e) {
+                alert("Scan failed");
+            }
+        }
+    }
+</script>
 
 </body>
 </html>

@@ -212,12 +212,12 @@ def get_best_resume():
         model = genai.GenerativeModel('gemini-pro') 
         
         prompt = f"""
-        You are a data extraction assistant. 
-        Extract the following fields from the resume text below into a strictly valid JSON object.
-        Keys: first_name, last_name, email, phone, linkedin, github, portfolio_url, authorized_to_work, address, education, work_experience_summary, bio
+        You are an assistant and a job tracker for end user named: Vanessa Lopez.
+        Extract the following fields from the best Vanessa Lopez's resume text below into a valid JSON Object.
+        Keys: first_name, last_name, email, phone, linkedin, github, portfolio_url, city_address, zipcode, education, work_experience_titles, work_experience_summary, summary,bio
         
         Rules:
-        1. If information is missing, use an empty string "".
+        1. If information is missing, write: "missing" or "na"
         2. Return ONLY the raw JSON string. Do not use Markdown formatting (no ```json).
         
         RESUME TEXT:
@@ -272,6 +272,67 @@ def track_job():
     db.session.add(new_job)
     db.session.commit()
     return jsonify({"message": "Application saved!", "id": new_job.id})
+@app.route('/tailor-resume', methods=['POST'])
+def tailorResume():
+    """ Receives job description from chrome extension then finds best matching resume in db. 
+        Then uses gemini to help rewrite resume to match ATS scanner
+    """
+    try:
+        data = request.json
+        job_description = data.get('job_description', '')
+        if len(job_description) < 50:
+            return jsonify({"error": "job is not there, please highlight the ENTIRE job description"}), 400
+        query_embedding = get_embedding(job_description)
+        embedding_str = str(query_embedding)
+        sql = text("""
+            SELECT id, full_text, filename,
+            1 - (embedding <=> CAST(:query_embedding AS vector)) as match_score
+            FROM resumes
+            ORDER BY match_score DESC
+            LIMIT 1;
+        """)
+        result = db.session.execute(sql, {'query_embedding': embedding_str}).fetchone()
+        if not result:
+            return jsonify({"error": "No resumes found in DB"}), 404
+        base_resume = result[1]
+
+        model = genai.GenerativeModel('gemini-pro')
+        # Prompt designed to pass ATS
+        prompt = f"""
+        You are an professional Resume Writer and ATS Optimizer
+        Target Role: Based on the Job Description below.
+
+        JOB DESCRIPTION:
+        {job_description[:5000]}
+
+        CURRENT RESUME:
+        {base_resume[:5000]}
+
+        TASK:
+        1. Identify the top 5 hard skills required by the Job Description.
+        2. Rewrite the "Professional Summary" to specifically highlight these skills.
+        3. Rewrite 3 key bullet points from the experience to use keywords from the Job Description (Action Verbs + Result).
+        4. Generate a short "Cover Letter" specific to this role.
+
+        OUTPUT FORMAT (JSON ONLY):
+        {{
+            "matched_skills": ["Skill 1", "Skill 2"...],
+            "tailored_summary": "...",
+            "tailored_bullets": ["...", "...", "..."],
+            "cover_letter_body": "..."
+        }}
+        """
+
+        response = model.generate_content(prompt)
+        clean_json = response.text.replace("```json", "").replace("```", "").strip()
+        tailored_data = json.loads(clean_json)
+
+        return jsonify(tailored_data)
+
+    except Exception as e:
+        print(f"Tailoring Error: {e}")
+        return jsonify({"error": str(e)}), 500
+
 
 @app.route('/update-status/<int:job_id>', methods=['PUT'])
 def update_status(job_id):
